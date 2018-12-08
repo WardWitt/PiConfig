@@ -1,6 +1,6 @@
 import os
 
-sudoPassword = 'CWFcwf1234!'
+sudoPassword =""
 
 Addresses = {'b8:27:eb:10:86:1a' : ('192.168.1.101', 's01'),
              'b8:27:eb:36:3c:15' : ('192.168.1.102', 's02'),
@@ -34,32 +34,30 @@ try:
     currentHostname = open('/etc/hostname').read().rstrip()
     newHostname = Addresses[macAddress][1].rstrip()
     if currentHostname != newHostname:
-        print('Configuring hostname')
+        print('Configuring /etc/hostname')
         issueCommand('chown pi /etc/hostname')
         issueCommand('echo %s > /etc/hostname' %(newHostname))
         issueCommand('chown root /etc/hostname')
-        print('Configuring ip address')
+        print('Configuring /etc/hosts')
+        issueCommand('chown pi /etc/hosts')
+        # too hard to replace just the hostname.. replace the entire line
+        issueCommand("sed -i 's/^\(127.0.1.1\).*//' /etc/hosts")
+        issueCommand('echo "127.0.1.1       %s" >> /etc/hosts' %(Addresses[macAddress][1]))
+        issueCommand('chown root /etc/hosts')
+        
+        print('Configuring ip address /etc/dhcpcd.conf')
         issueCommand('chown pi /etc/dhcpcd.conf')
+        # make sure we dont have duplicate lines
+        issueCommand("sed -i 's/^\(interface wlan0\).*//' /etc/dhcpcd.conf")
+        issueCommand("sed -i 's/^\(static ip_address\).*//' /etc/dhcpcd.conf")
+        # create the new entries
         issueCommand('echo "interface wlan0" >> /etc/dhcpcd.conf')
         issueCommand('echo "static ip_address=%s/24" >> /etc/dhcpcd.conf' %(Addresses[macAddress][0]))
         issueCommand('chown root /etc/dhcpcd.conf')
-        issueCommand('reboot')    
+        #issueCommand('reboot')    
     else:
         print('Already configured')
     
-    #command = 'chown pi /etc/dhcpcd.conf'
-    #print(os.system('echo %s|sudo -S %s' %(sudoPassword, command)))
-     
-    #command = 'echo "interface wlan0" >> /etc/dhcpcd.conf'
-    #print(os.system('echo %s|sudo -S %s' %(sudoPassword, command)))
-
-    #command = 'echo "static ip_address=%s/24" >> /etc/dhcpcd.conf' %(Addresses[mac][0])
-    #print(os.system('echo %s|sudo -S %s' %(sudoPassword, command)))
-
-    #command = 'chown root /etc/dhcpcd.conf'
-    #print(os.system('echo %s|sudo -S %s' %(sudoPassword, command)))
-
-
     
 except:
     print('Not Found')
