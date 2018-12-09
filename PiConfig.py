@@ -15,7 +15,8 @@ Addresses = {'b8:27:eb:10:86:1a' : ('192.168.1.101', 's01'),
              'b8:27:eb:9f:58:63' : ('192.168.1.111', 's11'),
              'b8:27:eb:b2:2c:34' : ('192.168.1.112', 's12'),
              'b8:27:eb:be:41:06' : ('192.168.1.113', 's13'),
-             'b8:27:eb:e1:59:6c' : ('192.168.1.114', 's14')}
+             'b8:27:eb:e1:59:6c' : ('192.168.1.114', 's14'),
+             'b8:27:eb:62:22:a4' : ('192.168.1.115', 'test01')}
 
 def getMAC():
     try:
@@ -25,7 +26,6 @@ def getMAC():
     return str[0:17]
 
 def issueCommand(command):
-    print(command)
     print(os.system('echo %s|sudo -S %s' %(sudoPassword, command)))
 
 
@@ -34,18 +34,19 @@ try:
     currentHostname = open('/etc/hostname').read().rstrip()
     newHostname = Addresses[macAddress][1].rstrip()
     if currentHostname != newHostname:
-        print('Configuring /etc/hostname')
+        #Configuring /etc/hostname
         issueCommand('chown pi /etc/hostname')
         issueCommand('echo %s > /etc/hostname' %(newHostname))
         issueCommand('chown root /etc/hostname')
-        print('Configuring /etc/hosts')
+        
+        #Configuring /etc/hosts
         issueCommand('chown pi /etc/hosts')
         # too hard to replace just the hostname.. replace the entire line
         issueCommand("sed -i 's/^\(127.0.1.1\).*//' /etc/hosts")
         issueCommand('echo "127.0.1.1       %s" >> /etc/hosts' %(Addresses[macAddress][1]))
         issueCommand('chown root /etc/hosts')
         
-        print('Configuring ip address /etc/dhcpcd.conf')
+        #Configuring ip address /etc/dhcpcd.conf
         issueCommand('chown pi /etc/dhcpcd.conf')
         # make sure we dont have duplicate lines
         issueCommand("sed -i 's/^\(interface wlan0\).*//' /etc/dhcpcd.conf")
@@ -54,6 +55,13 @@ try:
         issueCommand('echo "interface wlan0" >> /etc/dhcpcd.conf')
         issueCommand('echo "static ip_address=%s/24" >> /etc/dhcpcd.conf' %(Addresses[macAddress][0]))
         issueCommand('chown root /etc/dhcpcd.conf')
+        
+        #Disable screen blanking
+        issueCommand('echo @xset s off >> /home/pi/.config/lxsession/LXDE-pi/autostart')
+        issueCommand('echo @xset -dpms >> /home/pi/.config/lxsession/LXDE-pi/autostart')
+        issueCommand('echo @xset s noblank >> /home/pi/.config/lxsession/LXDE-pi/autostart'))
+        
+        # reboot
         issueCommand('reboot')    
     else:
         print('Already configured')
