@@ -54,7 +54,7 @@ try:
         issueCommand('echo "interface wlan0" >> /etc/dhcpcd.conf')
         issueCommand('echo "static ip_address=%s/24" >> /etc/dhcpcd.conf' %(Addresses[macAddress][0]))
         issueCommand('chown root /etc/dhcpcd.conf')
-        #issueCommand('reboot')    
+        issueCommand('reboot')    
     else:
         print('Already configured')
     
