@@ -59,7 +59,7 @@ try:
         #Disable screen blanking
         issueCommand('echo @xset s off >> /home/pi/.config/lxsession/LXDE-pi/autostart')
         issueCommand('echo @xset -dpms >> /home/pi/.config/lxsession/LXDE-pi/autostart')
-        issueCommand('echo @xset s noblank >> /home/pi/.config/lxsession/LXDE-pi/autostart'))
+        issueCommand('echo @xset s noblank >> /home/pi/.config/lxsession/LXDE-pi/autostart')
         
         # reboot
         issueCommand('reboot')    
