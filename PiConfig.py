@@ -1,5 +1,7 @@
 import os
 
+gateway = '192.168.1.1'
+dns = '192.168.1.1'
 sudoPassword =""
 
 Addresses = {'b8:27:eb:10:86:1a' : ('192.168.1.101', 's01'),
@@ -26,7 +28,8 @@ def getMAC():
     return str[0:17]
 
 def issueCommand(command):
-    print(os.system('echo %s|sudo -S %s' %(sudoPassword, command)))
+    print(command)
+    os.system('echo %s|sudo -S %s' %(sudoPassword, command))
 
 
 try:
@@ -51,12 +54,20 @@ try:
         # make sure we dont have duplicate lines
         issueCommand("sed -i 's/^\(interface wlan0\).*//' /etc/dhcpcd.conf")
         issueCommand("sed -i 's/^\(static ip_address\).*//' /etc/dhcpcd.conf")
+        issueCommand("sed -i 's/^\(static routers\).*//' /etc/dhcpcd.conf")
+        issueCommand("sed -i 's/^\(static domain_name_servers\).*//' /etc/dhcpcd.conf")
         # create the new entries
         issueCommand('echo "interface wlan0" >> /etc/dhcpcd.conf')
         issueCommand('echo "static ip_address=%s/24" >> /etc/dhcpcd.conf' %(Addresses[macAddress][0]))
+        issueCommand('echo "static routers=%s" >> /etc/dhcpcd.conf' %(gateway))
+        issueCommand('echo "static domain_name_servers=%s" >> /etc/dhcpcd.conf' %(dns))
         issueCommand('chown root /etc/dhcpcd.conf')
         
         #Disable screen blanking
+        # make sure we dont have duplicate lines E.G. cards got swapped between Pis
+        issueCommand("sed -i 's/^\(@xset s off\)//' /home/pi/.config/lxsession/LXDE-pi/autostart")
+        issueCommand("sed -i 's/^\(@xset -dpms\)//' /home/pi/.config/lxsession/LXDE-pi/autostart")
+        issueCommand("sed -i 's/^\(@xset s noblank\)//' /home/pi/.config/lxsession/LXDE-pi/autostart")
         issueCommand('echo @xset s off >> /home/pi/.config/lxsession/LXDE-pi/autostart')
         issueCommand('echo @xset -dpms >> /home/pi/.config/lxsession/LXDE-pi/autostart')
         issueCommand('echo @xset s noblank >> /home/pi/.config/lxsession/LXDE-pi/autostart')
