@@ -63,16 +63,7 @@ try:
         issueCommand('echo "static routers=%s" >> /etc/dhcpcd.conf' %(gateway))
         issueCommand('echo "static domain_name_servers=%s" >> /etc/dhcpcd.conf' %(dns))
         issueCommand('chown root /etc/dhcpcd.conf')
-        
-        #Disable screen blanking
-        # make sure we dont have duplicate lines E.G. cards got swapped between Pis
-        issueCommand("sed -i 's/^\(@xset s off\)//' /home/pi/.config/lxsession/LXDE-pi/autostart")
-        issueCommand("sed -i 's/^\(@xset -dpms\)//' /home/pi/.config/lxsession/LXDE-pi/autostart")
-        issueCommand("sed -i 's/^\(@xset s noblank\)//' /home/pi/.config/lxsession/LXDE-pi/autostart")
-        issueCommand('echo @xset s off >> /home/pi/.config/lxsession/LXDE-pi/autostart')
-        issueCommand('echo @xset -dpms >> /home/pi/.config/lxsession/LXDE-pi/autostart')
-        issueCommand('echo @xset s noblank >> /home/pi/.config/lxsession/LXDE-pi/autostart')
-        
+                
         # reboot
         issueCommand('reboot')    
     else:
